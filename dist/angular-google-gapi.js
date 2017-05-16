@@ -42,6 +42,8 @@
                             executeCallbacks(api);
                         }
                     });
+                }, function (e) {
+                    deferred.reject(e);
                 });
                 return deferred.promise;
             }
@@ -168,6 +170,8 @@
                             isLoad = true;
                             deferred.resolve();
                         });
+                    }, function (e) {
+                        deferred.reject(e);
                     });
                 } else {
                     deferred.resolve();
@@ -175,7 +179,7 @@
                 return deferred.promise;
             }
 
-            function signin(mode, authorizeCallback) {
+            function signin(mode, authorizeCallback, errorCallback) {
                 function executeSignin(mode, authorizeCallback){
                     var config = {client_id: CLIENT_ID, scope: SCOPE, immediate: false, authuser: -1, response_type: RESPONSE_TYPE};
                     if(mode) {
@@ -193,6 +197,10 @@
                 } else {
                     load().then(function (){
                         executeSignin(mode, authorizeCallback);
+                    }, function (e) {
+                        if (errorCallback) {
+                            errorCallback(e);
+                        }
                     });
                 }
             }
@@ -276,6 +284,8 @@
                         }, function () {
                             deferred.reject();
                         });
+                    }, function (e) {
+                        deferred.reject(e);
                     });
                     return deferred.promise;
                 },
@@ -288,6 +298,8 @@
                         }, function () {
                             deferred.reject();
                         });
+                    }, function (e) {
+                        deferred.reject(e);
                     });
                     return deferred.promise;
                 },
@@ -301,6 +313,8 @@
                         }, function () {
                             deferred.reject();
                         });
+                    }, function (e) {
+                        deferred.reject(e);
                     });
                     return deferred.promise;
                 },
@@ -309,6 +323,8 @@
                     var deferred = $q.defer();
                     load().then(function (){
                         deferred.resolve($window.gapi.auth.getToken());
+                    }, function (e) {
+                        deferred.reject(e);
                     });
                     return deferred.promise;
                 },
@@ -320,6 +336,8 @@
                         GData.isLogin(false);
                         GData.getUser(null);
                         deferred.resolve();
+                    }, function (e) {
+                        deferred.reject(e);
                     });
                     return deferred.promise;
                 },
@@ -362,6 +380,11 @@
                         deferred.reject(e);
                     });
                 };
+                $window.onerror = function (e) {
+                    $timeout(function () {
+                        deferred.reject(e);
+                    });
+                };
                 script.src = src;
                 $document[0].body.appendChild(script);
                 return deferred.promise;
@@ -386,6 +409,8 @@
                                 for(var i= 0; i < OBSERVER_CALLBACKS.length; i++){
                                     OBSERVER_CALLBACKS[i].resolve();
                                 }
+                            }, function(e) {
+                                deferred.reject(e);
                             });
                         }
                     }
